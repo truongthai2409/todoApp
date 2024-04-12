@@ -4,14 +4,13 @@ import { CheckCircleOutlined, MinusSquareOutlined } from '@ant-design/icons';
 import useSWR from 'swr';
 import { fetcher } from '../../config';
 import { getData, patchData } from './GetData';
-import Loading from './Loading';
+import LoadingButton from './Item';
 
 const Section = () => {
     const [users, setUser] = useState([]);
     const [task, setTask] = useState([]);
     const [conutTask, setConutTask] = useState(0);
     const [totalTask, setTotalTask] = useState(0);
-    // const [load, setLoad] = useState([])
 
     const { data } = useSWR(
         `https://jsonplaceholder.typicode.com/users`,
@@ -28,40 +27,27 @@ const Section = () => {
 
     const handUser = async (value) => {
         const newTask = await getData(value)
-        // const newLoad = newTask.map((item) => {
-        //     if (item.completed === false) {
-        //         return { ...item, completed: false }
-        //     } else {
-        //         return null
-        //     }
-        // })
+        console.log(newTask)
+
         const taskDone = newTask.reduce((count, item) => {
             if (item.completed === true) {
                 count++;
             }
             return count;
         }, 0);
-        // console.log(taskDone);
-        
         setTotalTask(newTask.length)
         setConutTask(taskDone)
         setTask(newTask)
     }
-    const handleMark = async (taskId) => {
-        
+
+    const handleClick = async (taskId) => {
         await patchData(taskId);
         const newTask = task.map(item => item.id === taskId ? { ...item, completed: true } : item);
-        // const newTask = task.map(item => {
-        //     if (item.id === taskId) {
-        //         return { ...item, completed: true }
-        //     } else {
-        //         return item
-        //     }
-        // })
-        
+
         setConutTask(conutTask + 1)
         setTask(newTask)
-    }
+
+    };
     return (
         <Fragment>
             <main className='px-10 py-6 w-[wh] overflow-hidden pt-[75px]'>
@@ -86,7 +72,7 @@ const Section = () => {
                     <List
                         style={{ height: '500px', overflow: 'auto', width: '100%' }}
                         bordered
-                        dataSource={task.sort((a,b) => (a.completed === false ? -1 : 1))}
+                        dataSource={task.sort((a, b) => (a.completed === false ? -1 : 1))}
                         renderItem={(item) => (
                             <List.Item style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <div>
@@ -94,13 +80,8 @@ const Section = () => {
                                     {item.title}
                                 </div>
                                 {item.completed ? '' :
-                                    <Button
-                                        // className={`TaskId_${item.id}`} 
-                                        onClick={() => handleMark(item.id)}
-                                        style={{ fontSize: '14px', height: '24px', minWidth: '100px', padding: '0px 7px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} >
-                                        {/* {load ? '' : <Loading />} */}
-                                        {/* {item.completed ? '' : <Loading />} */}
-                                        Mark Done
+                                    <Button  style={{ fontSize: '14px', height: '24px', minWidth: '100px', padding: '0px 7px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} >
+                                        <LoadingButton onClick={() => handleClick(item.id)}>Mark Done</LoadingButton>
                                     </Button>
                                 }
                             </List.Item>
